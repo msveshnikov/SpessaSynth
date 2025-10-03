@@ -1,3 +1,15 @@
+<h1>Works in iframe now, like this </h1>
+
+<code>
+       <iframe
+                title="Music Notation"
+                src={'/midi/index.html?midi=' + encodeURIComponent(midiUrl)}
+                width="100%"
+                height="800px"
+                style={{ border: '1px solid #ccc', borderRadius: '8px' }}
+            ></iframe>
+</code>      
+
 <!--suppress HtmlDeprecatedAttribute, HtmlRequiredAltAttribute, HtmlExtraClosingTag -->
 <p align='center'>
 <!--suppress CheckImageSize -->
