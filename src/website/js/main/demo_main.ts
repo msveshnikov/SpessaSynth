@@ -1,8 +1,16 @@
 "use strict";
 
 import { Manager } from "../manager/manager.js";
-import { getCheckSvg, getExclamationSvg, getHourglassSvg } from "../utils/icons.js";
-import { closeNotification, type NotificationContent, showNotification } from "../notification/notification.js";
+import {
+    getCheckSvg,
+    getExclamationSvg,
+    getHourglassSvg
+} from "../utils/icons.js";
+import {
+    closeNotification,
+    type NotificationContent,
+    showNotification
+} from "../notification/notification.js";
 import { ANIMATION_REFLOW_TIME } from "../utils/animation_utils.js";
 import { LocaleManager } from "../locale/locale_manager.js";
 
@@ -10,7 +18,10 @@ import { BasicSoundBank } from "spessasynth_core";
 import { WHATS_NEW } from "../../CHANGELOG.js";
 import type { LocaleCode } from "../locale/locale_files/locale_list.ts";
 import type { MIDIFile } from "../utils/drop_file_handler.ts";
-import { DEFAULT_SAVED_SETTINGS, type SavedSettings } from "../../server/saved_settings.ts";
+import {
+    DEFAULT_SAVED_SETTINGS,
+    type SavedSettings
+} from "../../server/saved_settings.ts";
 
 /**
  * Demo_main.js
@@ -240,15 +251,25 @@ async function demoInit(initLocale: LocaleCode) {
 
     window.manager.synth?.setMasterParameter("voiceCap", voiceCap);
 
-    if (fileInput.files?.[0]) {
-        await startMidi(fileInput.files);
-    } else {
-        fileInput.onclick = null;
-        fileInput.onchange = () => {
-            if (fileInput.files?.[0]) {
-                void startMidi(fileInput.files);
-            }
-        };
+    try {
+        const params = new URLSearchParams(window.location.search);
+        const midiUrl = params.get("midi");
+        //@ts-expect-error 2345
+        const response = await fetch(midiUrl); // Fetches from the root
+        if (!response.ok) {
+            throw new Error(
+                `Could not fetch ${midiUrl}: ${response.statusText}`
+            );
+        }
+        const midiData = await response.arrayBuffer();
+        //@ts-expect-error 2345
+        const midiFile = new File([midiData], midiUrl);
+
+        // Use the existing function to start playback
+        await startMidi([midiFile]);
+    } catch (error) {
+        console.error("Failed to automatically play embed.mid:", error);
+        titleMessage.textContent = "Error: Could not load embed.mid.";
     }
 
     changeIcon(getCheckSvg(256));
@@ -381,19 +402,9 @@ exportButton.style.display = "none";
 sfUpload.style.display = "none";
 fileUpload.style.display = "none";
 
+// eslint-disable-next-line @typescript-eslint/require-await
 async function playDemoSong(fileName: string) {
-    if (!window.manager) {
-        throw new Error("Unexpected lack of manager!");
-    }
-    titleMessage.textContent = window.manager.localeManager.getLocaleString(
-        "locale.synthInit.genericLoading"
-    );
-    const r = await fetch(
-        "https://spessasus.github.io/spessasynth-demo-songs/demo_songs/" +
-            fileName
-    );
-    // noinspection JSCheckFunctionSignatures
-    await startMidi([new File([await r.arrayBuffer()], fileName)]);
+    return fileName
 }
 
 void demoInit(initLocale).then(() => {
