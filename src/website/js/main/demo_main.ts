@@ -43,11 +43,7 @@ const loadingMessage = document.getElementById("loading_message")!;
 const fileUpload = document.getElementById("file_upload")!;
 const sfUpload = document.getElementById("sf_upload")!;
 
-// Load version
-const p = await fetch("package.json");
-const t = await p.text();
-const packageJson = JSON.parse(t) as { version: string };
-window.SPESSASYNTH_VERSION = packageJson.version || "UNKNOWN";
+
 
 // Remove the old files
 fileInput.value = "";
